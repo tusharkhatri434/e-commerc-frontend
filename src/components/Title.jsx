@@ -1,4 +1,4 @@
-const Tittle = (props) => {
+const Title = (props) => {
     const {title1,title2} = props.text;
     
   return (
@@ -16,4 +16,4 @@ const Tittle = (props) => {
   )
 }
 
-export default Tittle
+export default Title

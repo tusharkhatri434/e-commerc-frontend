@@ -7,7 +7,7 @@ const NavBar = () => {
   const [visible,setVisible] = useState(false);
 
   return (
-    <div className="flex item-center justify-between py-5 font-medium">
+    <div className="flex item-center justify-between py-5 font-medium sticky top-0 z-50 bg-white">
 
      <img src={assets.logo} alt="logo-img" className="w-36"></img>
      <ul className="hidden sm:flex my-auto gap-5 text-sm text-gray-700">

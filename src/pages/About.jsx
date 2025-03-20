@@ -4,7 +4,7 @@ import NewsLetterBox from '../components/NewsLetterBox';
 
 const About = () => {
   return (
-    <div>
+    <div className='border-t-1 border-gray-300'>
     <Title text={{title1:"About",title2:"US"}} />
   <div className="my-10 flex flex-col md:flex-row gap-16">
     <img className="w-full md:max-w-[450px]" src={assets.about_img} alt="" />

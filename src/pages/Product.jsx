@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { products } from '../assets/assets'
+// import { products } from '../assets/assets'
+import { IMG_URI } from '../utils/url-config';
 
 
 const Product = () => {
@@ -8,23 +9,28 @@ const Product = () => {
   const [data, setData] = useState(null);
 
   const fetchProduct = async (id) => {
-    //  fetch product details;
 
-    const response = products.filter((item) => item._id == id);
-    console.log(response[0]);
-    setData(response)
+    const data = await fetch(`http://localhost:8090/v1/api/product/${productId}`);
+    const res = await data.json();
+    console.log(res);
+     if(res.success){
+       setData(res.data);
+     }
+    // const response = products.filter((item) => item._id == id);
+    // console.log(response[0]);
   }
 
   useEffect(() => {
     fetchProduct(productId);
   }, []);
-  console.log(productId)
+
+  console.log(productId);
 
   if (!data) {
     return <h1>Loading.......</h1>;
   }
 
-  const { _id,image, name, price, sizes, description } = data[0];
+  const { _id,image, name, price, sizes, description } = data;
 
 
   return (
@@ -35,14 +41,14 @@ const Product = () => {
             {image.map((uri, index) => (
               <img
                 key={index}
-                src={uri}
+                src={IMG_URI+uri}
                 className="w-[24%] sm:w-full sm:mb-3 flex-shrink-0 cursor-pointer" alt="" />
             ))}
           </div>
           <div className="w-full sm:w-[80%]">
             <img
               className="w-full h-auto"
-              src={image[0]} alt="" />
+              src={IMG_URI + image[0]} alt="" />
           </div>
         </div>
         <div className="flex-1">

@@ -15,15 +15,45 @@ const Login = () => {
     setPasssword('');
     setName('');
     setLoginForm(!isLoginForm);
-     }
+  }
 
-  const formSubmitHandler = (e)=>{
+  const  formSubmitHandler = async (e)=>{
     e.preventDefault();
     if(isLoginForm){
       if(email && password){
         console.log(email,password);
-        navigate("/");
+        try {
+          const data = await fetch("http://localhost:8090/v1/api/login",{
+            method:'POST',
+            headers: {
+              'Content-Type': 'application/json' // Tell the server the body is JSON
+            },
+            body:JSON.stringify({email,password})
+          });
+    
+          const res = await data.json();
+          console.log(res);
+        } catch (error) {
+          console.log(error)
+        }
+
+        return ;
       }
+    }
+
+    try {
+      const data = await fetch("http://localhost:8090/v1/api/signup",{
+        method:'POST',
+        headers: {
+          'Content-Type': 'application/json' // Tell the server the body is JSON
+        },
+        body:JSON.stringify({name,email,password})
+      });
+
+      const res = await data.json();
+      console.log(res);
+    } catch (error) {
+      console.log(error)
     }
   }
 

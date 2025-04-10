@@ -2,17 +2,19 @@ import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 // import { products } from '../assets/assets'
 import { IMG_URI } from '../utils/url-config';
-
+import { useDispatch } from 'react-redux';
+import {addProducts} from "../context/slice/cartSlice";
 
 const Product = () => {
   const { productId } = useParams();
   const [data, setData] = useState(null);
+  const dispatch = useDispatch();
 
   const fetchProduct = async (id) => {
 
     const data = await fetch(`http://localhost:8090/v1/api/product/${productId}`);
     const res = await data.json();
-    console.log(res);
+    // console.log(res);
      if(res.success){
        setData(res.data);
      }
@@ -23,8 +25,11 @@ const Product = () => {
   useEffect(() => {
     fetchProduct(productId);
   }, []);
+  // console.log(productId);
 
-  console.log(productId);
+  const addToCartHandler = ()=>{
+    dispatch(addProducts({...data,id:Date.now()*2,count:1,size:'M'}));
+  }
 
   if (!data) {
     return <h1>Loading.......</h1>;
@@ -34,7 +39,7 @@ const Product = () => {
 
 
   return (
-    <div className="border-t-1 border-gray-300 pt-10 transition-opacity ease-in duration-500 opacity-100">
+    <div className="border-t-1 border-gray-200 pt-10 transition-opacity ease-in duration-500 opacity-100">
       <div className="flex gap-12 sm:gap-12 flex-col sm:flex-row">
         <div className="flex-1 flex flex-col-reverse gap-3 sm:flex-row">
           <div className="flex sm:flex-col no-scrollbar overflow-x-auto sm:overflow-y-scroll justify-between sm:justify-normal sm:w-[18.7%] w-full">
@@ -66,7 +71,7 @@ const Product = () => {
               ))}
             </div>
           </div>
-          <button className="bg-black text-white px-8 py-3 text-sm active:bg-gray-700">ADD TO CART</button>
+          <button onClick={addToCartHandler} className="bg-black cursor-pointer text-white px-8 py-3 text-sm active:bg-gray-700">ADD TO CART</button>
           <hr className="mt-8 sm:w-4/5" />
           <div className="text-sm text-gray-500 mt-5 flex flex-col gap-1">
             <p>100% Original product.</p>

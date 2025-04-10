@@ -2,6 +2,7 @@ import Title from "../components/Title"
 import ProductItem from '../components/ProductItem';
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { BASE_URL } from "../utils/url-config";
 
 const categoriesFiltersObj = {men:true,women:false,kids:false};
 const typeFilterObj  = {topwear:false,bottomwear:false,winterwear:false};
@@ -32,7 +33,7 @@ const Collection = () => {
 
    const fetchDataHandler = async ()=>{
     try {
-      const data = await fetch("http://localhost:8090/v1/api/products");
+      const data = await fetch(`${BASE_URL}/v1/api/products`);
       const res = await data.json();
       if(res.success){
         SetFetchDataItems(res.data);
@@ -200,7 +201,7 @@ useEffect(()=>{
   console.log(subCategories);
 
   return (
-    <div className="flex flex-col sm:flex-row gap-1 sm:gap-10 pt-10 border-t-1 border-gray-300">
+    <div className="flex flex-col sm:flex-row gap-1 sm:gap-10 pt-10 border-t-1 border-gray-200">
       <div className="min-w-60">
         <p className="my-2 text-xl flex items-center cursor-pointer gap-2">
           FILTERS

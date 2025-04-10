@@ -28,8 +28,8 @@ function App() {
          <Route path="/collection"  element={<Collection />}></Route>
          <Route path="/contact"  element={<Contact />}></Route>
          <Route path="/login"  element={<Login />}></Route>
-         <Route path="/order"  element={<Order />}></Route>
-         <Route path="/placeOrder"  element={<PlaceOrder />}></Route>
+         <Route path="/orders"  element={<Order />}></Route>
+         <Route path="/place-order"  element={<PlaceOrder />}></Route>
          <Route path="/product/:productId"  element={<Product />}></Route>
          <Route path="*" element={<NotFound />}></Route>
       </Routes>

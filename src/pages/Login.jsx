@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom";
+import { BASE_URL } from "../utils/url-config";
 
 const Login = () => {
 
@@ -23,7 +24,7 @@ const Login = () => {
       if(email && password){
         console.log(email,password);
         try {
-          const data = await fetch("http://localhost:8090/v1/api/login",{
+          const data = await fetch(`${BASE_URL}/v1/api/login`,{
             method:'POST',
             headers: {
               'Content-Type': 'application/json' // Tell the server the body is JSON
@@ -42,7 +43,7 @@ const Login = () => {
     }
 
     try {
-      const data = await fetch("http://localhost:8090/v1/api/signup",{
+      const data = await fetch(`${BASE_URL}/v1/api/signup`,{
         method:'POST',
         headers: {
           'Content-Type': 'application/json' // Tell the server the body is JSON

@@ -1,10 +1,9 @@
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import ProductItem from './ProductItem';
-import { ProductStore } from '../context/StoreContext';
+
 
 const BestSeller = () => {
 
-  const {products} = useContext(ProductStore);
   const [bestSellerProducts,setBestSellerProducts] = useState(null);
 
   const fetchDataHandler = async ()=>{

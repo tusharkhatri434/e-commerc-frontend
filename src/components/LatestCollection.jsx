@@ -1,11 +1,8 @@
-import { useContext } from 'react'
 import ProductItem from './ProductItem'
 import { latestProducts } from '../utils/dummy'
-import { ProductStore } from '../context/StoreContext'
 
 const LatestCollection = () => {
   
-  const {products} = useContext(ProductStore);
   if(!latestProducts){
     return ;
   }

@@ -1,15 +1,20 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom";
 import { BASE_URL } from "../utils/url-config";
+import { useDispatch, useSelector } from "react-redux";
+import { loginUser, registerUser, } from '../context/slice/authSlice';
 
 const Login = () => {
+
+  const navigate = useNavigate();
+  const {user,loading,error} = useSelector((store)=>store.auth);
+  const dispatch = useDispatch();
 
   const [isLoginForm,setLoginForm] = useState(true);
   const [name,setName] = useState("");
   const [email,setEmail] = useState("");
   const [password,setPasssword] = useState("");
   
-  const navigate = useNavigate();
 
   const formTypeChangeHandler = ()=>{
     setEmail('');
@@ -23,40 +28,48 @@ const Login = () => {
     if(isLoginForm){
       if(email && password){
         console.log(email,password);
-        try {
-          const data = await fetch(`${BASE_URL}/v1/api/login`,{
-            method:'POST',
-            headers: {
-              'Content-Type': 'application/json' // Tell the server the body is JSON
-            },
-            body:JSON.stringify({email,password})
-          });
+        // try {
+        //   const data = await fetch(`${BASE_URL}/v1/api/login`,{
+        //     method:'POST',
+        //     headers: {
+        //       'Content-Type': 'application/json' // Tell the server the body is JSON
+        //     },
+        //     body:JSON.stringify({email,password})
+        //   });
     
-          const res = await data.json();
-          console.log(res);
-        } catch (error) {
-          console.log(error)
-        }
-
+        //   const res = await data.json();
+        //   console.log(res);
+        // } catch (error) {
+        //   console.log(error)
+        // }
+        dispatch(loginUser({email,password}));
         return ;
       }
     }
 
-    try {
-      const data = await fetch(`${BASE_URL}/v1/api/signup`,{
-        method:'POST',
-        headers: {
-          'Content-Type': 'application/json' // Tell the server the body is JSON
-        },
-        body:JSON.stringify({name,email,password})
-      });
+    // try {
+    //   const data = await fetch(`${BASE_URL}/v1/api/signup`,{
+    //     method:'POST',
+    //     headers: {
+    //       'Content-Type': 'application/json' // Tell the server the body is JSON
+    //     },
+    //     body:JSON.stringify({name,email,password})
+    //   });
 
-      const res = await data.json();
-      console.log(res);
-    } catch (error) {
-      console.log(error)
-    }
+    //   const res = await data.json();
+    //   console.log(res);
+    // } catch (error) {
+    //   console.log(error)
+    // }
+    dispatch(registerUser({name,email,password}));
   }
+  console.log(error);
+  useEffect(()=>{
+    if(user){
+      console.log("login effect running");
+      navigate('/');
+    }
+  },[user,navigate]);
 
   return (
     <form onSubmit={formSubmitHandler} className="flex flex-col items-center w-[90%] sm:max-w-96 m-auto mt-14 gap-4 text-gray-800">
@@ -73,6 +86,7 @@ const Login = () => {
        <p onClick={formTypeChangeHandler} className="cursor-pointer">{isLoginForm?"Create account":"Login Here"}</p>
     </div>
     <button type="submit" className="bg-black text-white font-light px-8 py-2 mt-4">{isLoginForm ? "Sign In" : "Sign Up"}</button>
+    <p className="text-red-500">{error}!!</p>
  </form>
   )
 }

@@ -9,9 +9,8 @@ const Cart = () => {
       
    const cartProduct = useSelector((state)=>state.cart);
    console.log("CART",cartProduct);
+   const {user} = useSelector((store)=>store.auth);
 
-   const dispatch = useDispatch();
-   
    const subTotal = useMemo(()=>{
       let sum = 0;
       if(cartProduct.length>0){
@@ -59,7 +58,7 @@ const Cart = () => {
             </div>
          </div>
          <div className=" w-full text-end">
-            <NavLink to="/place-order">
+            <NavLink to={user ? "/place-order" : ""}>
             <button className="bg-black text-white text-sm my-8 px-8 py-3">PROCEED TO CHECKOUT</button>
             </NavLink>
          </div>

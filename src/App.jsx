@@ -13,6 +13,7 @@ import NotFound from "./pages/NotFound";
 import NavBar from "./components/NavBar";
 import Footer from "./components/Footer";
 import ScrollToTop from "./pages/ScrollToTop";
+import PrivateRoute from "./components/PrivaterRoute";
 
 
 function App() {
@@ -28,8 +29,8 @@ function App() {
          <Route path="/collection"  element={<Collection />}></Route>
          <Route path="/contact"  element={<Contact />}></Route>
          <Route path="/login"  element={<Login />}></Route>
-         <Route path="/orders"  element={<Order />}></Route>
-         <Route path="/place-order"  element={<PlaceOrder />}></Route>
+         <Route path="/orders"  element={<PrivateRoute><Order /></PrivateRoute>}></Route>
+         <Route path="/place-order"  element={<PrivateRoute><PlaceOrder /></PrivateRoute>}></Route>
          <Route path="/product/:productId"  element={<Product />}></Route>
          <Route path="*" element={<NotFound />}></Route>
       </Routes>

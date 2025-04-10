@@ -15,7 +15,7 @@ export const loginUser = createAsyncThunk(
         body: JSON.stringify(userData),
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.message || 'Login failed');
+      if (!response.ok) throw new Error(data.msg || 'Login failed');
       return data; // should contain { user, token }
     } catch (err) {
       return thunkAPI.rejectWithValue(err.message);
@@ -28,7 +28,7 @@ export const registerUser = createAsyncThunk(
   'auth/registerUser',
   async (userData, thunkAPI) => {
     try {
-      const response = await fetch(`${BASE_URL}/v1/api/register`, {
+      const response = await fetch(`${BASE_URL}/v1/api/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(userData),

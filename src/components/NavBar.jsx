@@ -1,14 +1,28 @@
-import { Link, NavLink } from "react-router-dom"
+import { Link, NavLink, useNavigate } from "react-router-dom"
 import { assets } from "../assets/assets"
-import { useState } from "react"
-import { useSelector } from "react-redux";
+import { useEffect, useState } from "react"
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "../context/slice/authSlice";
 
 const NavBar = () => {
   
   const [visible,setVisible] = useState(false);
-  const cartProductItem = useSelector((state)=>state.cart); 
+  const cartProductItem = useSelector((state)=>state.cart);
+  const {user} = useSelector((store)=>store.auth);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const logoutHandler = ()=>{
+    dispatch(logout());
+    navigate('/');
+  }
+
+  useEffect(()=>{
+   setVisible(false);
+  },[navigate])
+  
   return (
-    <div className="flex item-center justify-between py-5 font-medium sticky top-0 z-50 bg-white">
+    <div className="flex item-center justify-between py-5 font-medium bg-white">
 
     <NavLink to='/'> <img src={assets.logo} alt="logo-img" className="w-36"></img></NavLink>
      <ul className="hidden sm:flex my-auto gap-5 text-sm text-gray-700">
@@ -37,14 +51,15 @@ const NavBar = () => {
       <img src={assets.search_icon} alt="" className="w-5 cursor-pointer" />
         
         <div className="group relative">
-          <NavLink to="/login"><img className="w-5 cursor-pointer" src={assets.profile_icon} /></NavLink>
-          <div className="group-hover:block hidden absolute dropdown-menu right-0 pt-4">
+          <NavLink to={user ? "":"/login"}><img className="w-5 cursor-pointer" src={assets.profile_icon} /></NavLink>
+          {user ? <div className="group-hover:block hidden absolute dropdown-menu right-0 pt-4">
             <div className="flex flex-col gap-2 w-36 px-5 bg-slate-100 text-gray-700">
               <p className="cursor-pointer hover:text-black">My profile</p>
               <NavLink to="/orders"><p className="cursor-pointer hover:text-black">Orders</p></NavLink>
-              <p className="cursor-pointer hover:text-black">Logout</p>
+              <p onClick={logoutHandler} className="cursor-pointer hover:text-black">Logout</p>
             </div>
-          </div>
+          </div> : null}
+         
         </div>
 
       <Link to="/cart" className="relative">
@@ -54,7 +69,7 @@ const NavBar = () => {
       <img onClick={()=>setVisible(true)} src={assets.menu_icon} className="w-5 cursor-pointer sm:hidden" />
       </div>
       {/* sidebar menu for small screens*/}
-      <div className={`absolute top-0 right-0 bottom-0 overflow-hidden bg-white transition-all ${visible ? 'w-full':'w-0'}`}>
+      <div className={`absolute top-0 right-0 bottom-0 overflow-hidden bg-white transition-all ${visible ? 'w-full':' w-0'}`}>
             <div className="flex flex-col text-gray-600">
                 <div onClick={()=>setVisible(false)} className="flex items-center gap-4 p-3 cursor-pointer">
                   <img  className="h-4 rotate-180" src={assets.dropdown_icon} />

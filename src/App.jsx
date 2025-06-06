@@ -14,6 +14,7 @@ import NavBar from "./components/NavBar";
 import Footer from "./components/Footer";
 import ScrollToTop from "./pages/ScrollToTop";
 import PrivateRoute from "./components/PrivaterRoute";
+import { ToastContainer } from "react-toastify";
 
 
 function App() {
@@ -22,6 +23,17 @@ function App() {
     <div className="px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
       <ScrollToTop/>
       <NavBar />
+      <ToastContainer 
+            position="top-right"
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick={false}
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover={false}
+            theme="light"
+          />
       <Routes>
          <Route path="/"  element={<Home />}></Route>
          <Route path="/about"  element={<About />}></Route>

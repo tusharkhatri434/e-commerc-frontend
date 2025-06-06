@@ -1,34 +1,45 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 // import { products } from '../assets/assets'
-import { IMG_URI } from '../utils/url-config';
+import { BASE_URL, IMG_URI } from '../utils/url-config';
 import { useDispatch } from 'react-redux';
 import {addProducts} from "../context/slice/cartSlice";
+import { toast} from 'react-toastify';
+import ProductItem from '../components/ProductItem';
 
 const Product = () => {
   const { productId } = useParams();
   const [data, setData] = useState(null);
+  const [size,setSize] = useState(null);
   const dispatch = useDispatch();
+
+  const notify = () => toast.error("Select Product Size",{
+    theme: "light",
+    autoClose: 1500,
+
+  });
 
   const fetchProduct = async (id) => {
 
-    const data = await fetch(`http://localhost:8090/v1/api/product/${productId}`);
+    const data = await fetch(`${BASE_URL}/v1/api/product/${id}`);
     const res = await data.json();
-    // console.log(res);
+    console.log(res.data);
      if(res.success){
        setData(res.data);
      }
-    // const response = products.filter((item) => item._id == id);
-    // console.log(response[0]);
   }
 
   useEffect(() => {
     fetchProduct(productId);
-  }, []);
+  }, [productId]);
   // console.log(productId);
 
   const addToCartHandler = ()=>{
-    dispatch(addProducts({...data,id:Date.now()*2,count:1,size:'M'}));
+    if(!size){
+      notify();
+      return;
+    }
+    dispatch(addProducts({...data,id:Date.now()*2,count:1,size}));
   }
 
   if (!data) {
@@ -67,7 +78,7 @@ const Product = () => {
             <p>Select Size</p>
             <div className="flex gap-2">
               {sizes.map((item,index)=>(
-              <button key={index} className="border py-2 px-4 bg-gray-100">{item}</button>
+              <button onClick={()=>setSize(item)} key={index} className={`border-[1.5px] py-2 px-4 bg-gray-100 ${size==item ? 'border-red-500':""}`}>{item}</button>
               ))}
             </div>
           </div>
@@ -91,14 +102,15 @@ const Product = () => {
         </div>
       </div>
       <div className="my-24">
-        <div className=" text-center text-3xl py-2">
+        {/* <div className=" text-center text-3xl py-2">
           <div className="inline-flex gap-2 items-center mb-3">
             <p className="text-gray-500">RELATED <span className="text-gray-700 font-medium">PRODUCTS</span></p>
             <p className="w-8 sm:w-12 h-[1px] sm:h-[2px] bg-gray-700"></p>
           </div>
-        </div>
+        </div> */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 gap-y-6">
-          <a className="text-gray-700 cursor-pointer" href="/product/6683d5b67f779795ecfa98bb">
+          {/* {data?.relatedProducts.map((item)=><ProductItem data={item} key={item._id} />)} */}
+          {/* <a className="text-gray-700 cursor-pointer" href="/product/6683d5b67f779795ecfa98bb">
             <div className=" overflow-hidden"><img className="hover:scale-110 transition ease-in-out" src="https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img14.png" alt="" /></div>
             <p className="pt-3 pb-1 text-sm">Boy Round Neck Pure Cotton T-shirt</p>
             <p className=" text-sm font-medium">$60</p>
@@ -122,7 +134,7 @@ const Product = () => {
             <div className=" overflow-hidden"><img className="hover:scale-110 transition ease-in-out" src="https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img18.png" alt="" /></div>
             <p className="pt-3 pb-1 text-sm">Boy Round Neck Pure Cotton T-shirt</p>
             <p className=" text-sm font-medium">$28</p>
-          </a>
+          </a> */}
         </div>
       </div>
     </div>

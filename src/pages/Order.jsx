@@ -1,5 +1,35 @@
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { BASE_URL } from "../utils/url-config";
+import OrderCard from "../components/OrderCard";
 
 const Order = () => {
+  const [userOrders,setUserOrders] = useState();
+  const auth = useSelector((store)=>store.auth);
+  
+  async function fetchData(){
+    if(!auth){
+      return;
+    }
+    const userID = auth?.user?._id;
+    const data = await fetch(`${BASE_URL}/v1/api/get-orders/${userID}`);
+    const json = await data.json();
+
+    console.log(json?.data);
+    let allOrdersdata = json?.data
+    setUserOrders(allOrdersdata);
+
+  }
+
+  useEffect(()=>{
+   fetchData();
+  },[])
+  
+  if(!userOrders){
+    return;
+  }
+  console.log(userOrders[0].orderItems);
+
   return (
     <div className="border-t border-gray-200 pt-16">
       <div className="text-2xl">
@@ -8,30 +38,16 @@ const Order = () => {
           <p className="w-8 sm:w-12 h-[1px] sm:h-[2px] bg-gray-700"></p>
         </div>
       </div>
-      <div>
-        <div className="py-4 border-t border-gray-200 border-b text-gray-700 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div className="flex items-start gap-6 text-sm">
-            <img className="w-16 sm:w-20" src="https://raw.githubusercontent.com/avinashdm/gs-images/main/forever/p_img14.png" alt="" />
-            <div>
-              <p className="sm:text-base font-medium">Boy Round Neck Pure Cotton T-shirt</p>
-              <div className="flex items-center gap-3 mt-1 text-base text-gray-700">
-                <p>$60</p>
-                <p>Quantity: 1</p>
-                <p>Size: XL</p>
-              </div>
-              <p className="mt-1">Date: <span className=" text-gray-400">Wed Apr 09 2025</span></p>
-              <p className="mt-1">Payment: <span className=" text-gray-400">COD</span></p>
-            </div>
-          </div>
-          <div className="md:w-1/2 flex justify-between">
-            <div className="flex items-center gap-2">
-              <p className="min-w-2 h-2 rounded-full bg-green-500"></p>
-              <p className="text-sm md:text-base">Order Placed</p>
-            </div>
-            <button className="border px-4 py-2 text-sm font-medium rounded-sm">Track Order</button>
-          </div>
-        </div>
-      </div>
+      {userOrders.map((orders,index)=>(
+         <div key={orders._id} className="flex flex-col border my-2 border-gray-300 p-2">
+           <p className="text-lg bg-gray-500 text-white max-w-max p-2 rounded-xl mb-1">Order {index+1} : </p>
+           {orders.orderItems.map((item,index)=><OrderCard key={index} data={item} />)}
+           <div className="self-end">
+           <button className="sm:w-full md:w-35 m-2 border px-4 py-2 text-sm font-medium rounded-sm">Total Pay : ${orders.totalAmount}</button>
+           <button className="sm:w-full md:w-35 m-2 border px-4 py-2 text-sm font-medium rounded-sm">Track Order</button>
+         </div>
+         </div>
+      ))}
     </div>
   )
 }

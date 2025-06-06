@@ -86,7 +86,7 @@ const Login = () => {
        <p onClick={formTypeChangeHandler} className="cursor-pointer">{isLoginForm?"Create account":"Login Here"}</p>
     </div>
     <button type="submit" className="bg-black text-white font-light px-8 py-2 mt-4">{isLoginForm ? "Sign In" : "Sign Up"}</button>
-    <p className="text-red-500">{error}!!</p>
+    <p className="text-red-500">{error}</p>
  </form>
   )
 }

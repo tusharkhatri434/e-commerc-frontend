@@ -1,11 +1,13 @@
 import { useMemo, useState } from "react";
 import { useSelector } from "react-redux"
 import { useNavigate } from "react-router-dom";
+import { BASE_URL } from "../utils/url-config";
 
 
 const PlaceOrder = () => {
    
    const cartProduct = useSelector((state)=>state.cart);
+   const auth = useSelector((state)=>state.auth);
 
    const [firstName,setFirstName] = useState("");
    const [lastName,setLastName] = useState("");
@@ -13,7 +15,7 @@ const PlaceOrder = () => {
    const [street,setStreet] = useState("");
    const [city,setCity] = useState("");
    const [state,setState] = useState("");
-   const [zipcode,setZipcode] = useState("");
+   const [zipCode,setZipcode] = useState("");
    const [country,setCountry] = useState("");
    const [phone,setPhone] = useState("");
 
@@ -30,8 +32,45 @@ const PlaceOrder = () => {
           return sum;
        },[cartProduct]);
 
-   const formSubmitHandler = (e)=>{
+   const formSubmitHandler = async (e)=>{
       e.preventDefault();
+
+      let address = {
+         firstName,
+         lastName,
+         email,
+         street,
+         state,
+         city,
+         zipCode,
+         country,
+         phone
+      }
+
+      const newOrderObj = {
+         user:auth.user,
+         orderItems:cartProduct,
+         address
+      }
+      try {
+         const order = await fetch(`${BASE_URL+"/v1/api/place-order"}`,{
+            method:'POST',
+            headers:{
+               'Content-Type':'application/json'
+            },
+            body:JSON.stringify(newOrderObj)
+         });
+
+         const res = await order.json();
+
+         if(!res.success){
+            console.log("no placed something went wrong");
+            return; 
+         }
+      } catch (error) {
+         
+      }
+
       setFirstName("");
       setEmail("");
       setStreet("");
@@ -64,7 +103,7 @@ const PlaceOrder = () => {
          <input onChange={(e)=>setState(e.target.value)} name="state" className="border border-gray-300 rounded py-1.5 px-3.5 w-full" type="text" placeholder="State" value={state}/>
       </div>
       <div className="flex gap-3">
-         <input onChange={(e)=>setZipcode(e.target.value)} required="" name="zipcode" className="border border-gray-300 rounded py-1.5 px-3.5 w-full" type="number" placeholder="Zipcode" value={zipcode}/>
+         <input onChange={(e)=>setZipcode(e.target.value)} required="" name="zipcode" className="border border-gray-300 rounded py-1.5 px-3.5 w-full" type="number" placeholder="Zipcode" value={zipCode}/>
          <input onChange={(e)=>setCountry(e.target.value)} required="" name="country" className="border border-gray-300 rounded py-1.5 px-3.5 w-full" type="text" placeholder="Country" value={country}/></div>
          <input onChange={(e)=>setPhone(e.target.value)} required="" name="phone" className="border border-gray-300 rounded py-1.5 px-3.5 w-full" type="number" placeholder="Phone" value={phone}/>
    </div>

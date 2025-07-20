@@ -35,6 +35,7 @@ const Collection = () => {
     try {
       const data = await fetch(`${BASE_URL}/v1/api/products`);
       const res = await data.json();
+      console.log(res)
       if(res.success){
         SetFetchDataItems(res.data);
         setFilterProducts(res.data);

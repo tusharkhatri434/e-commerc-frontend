@@ -62,7 +62,7 @@ const PlaceOrder = () => {
          });
 
          const res = await order.json();
-
+          console.log(res)
          if(!res.success){
             console.log("no placed something went wrong");
             return; 

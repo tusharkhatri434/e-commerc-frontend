@@ -195,7 +195,7 @@ useEffect(()=>{
 },[categories,subCategories,fetchDataItems]);
 
   if(!fetchDataItems){
-    return;
+    return <h1>Loading............</h1>;
   }
 
   console.log(categories);

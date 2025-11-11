@@ -8,14 +8,23 @@ const Order = () => {
   const auth = useSelector((store) => store.auth);
 
   async function fetchData() {
-    if (!auth) return;
+    if (!auth || !auth.token) return;
 
     const userID = auth?.user?._id;
-    // const userID = "680b2aa4124d87084bbf3de8";
     try {
-      const response = await fetch(`${BASE_URL}/v1/api/get-orders/${userID}`);
+      const response = await fetch(`${BASE_URL}/v1/api/get-orders/${userID}`, {
+        headers: {
+          'Authorization': `Bearer ${auth.token}`
+        }
+      });
       const json = await response.json();
-      setUserOrders(json?.data || []);
+      
+      if (json.success) {
+        setUserOrders(json?.data || []);
+      } else {
+        console.error("Failed to fetch orders:", json.msg);
+        setUserOrders([]);
+      }
     } catch (error) {
       console.error("Error fetching orders:", error);
       setUserOrders([]);

@@ -1,25 +1,41 @@
-import { useMemo, useState } from "react";
-import { useSelector } from "react-redux"
+import { useMemo, useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux"
 import { useNavigate } from "react-router-dom";
 import { BASE_URL } from "../utils/url-config";
+import { toast } from "react-toastify";
+import { removeProducts } from "../context/slice/cartSlice";
 
 
 const PlaceOrder = () => {
    
    const cartProduct = useSelector((state)=>state.cart);
    const auth = useSelector((state)=>state.auth);
+   const dispatch = useDispatch();
+   const navigate = useNavigate();
 
    const [firstName,setFirstName] = useState("");
    const [lastName,setLastName] = useState("");
-   const [email,setEmail] = useState("");
+   const [email,setEmail] = useState(auth?.user?.email || "");
    const [street,setStreet] = useState("");
    const [city,setCity] = useState("");
    const [state,setState] = useState("");
    const [zipCode,setZipcode] = useState("");
    const [country,setCountry] = useState("");
    const [phone,setPhone] = useState("");
+   const [loading, setLoading] = useState(false);
 
-   const navigate = useNavigate();
+   // Check if cart is empty or user is not logged in
+   useEffect(() => {
+      if (!auth?.user) {
+         toast.error('Please login to place an order');
+         navigate('/login');
+         return;
+      }
+      if (cartProduct.length === 0) {
+         toast.info('Your cart is empty');
+         navigate('/cart');
+      }
+   }, [auth, cartProduct, navigate]);
 
    const subTotal = useMemo(()=>{
           let sum = 0;
@@ -34,53 +50,86 @@ const PlaceOrder = () => {
 
    const formSubmitHandler = async (e)=>{
       e.preventDefault();
+      
+      // Additional validation
+      if (cartProduct.length === 0) {
+         toast.error('Your cart is empty');
+         return;
+      }
 
-      let address = {
-         firstName,
-         lastName,
-         email,
-         street,
-         state,
-         city,
-         zipCode,
-         country,
-         phone
+      if (!auth?.user || !auth?.token) {
+         toast.error('Please login to continue');
+         navigate('/login');
+         return;
+      }
+
+      setLoading(true);
+
+      const address = {
+         firstName: firstName.trim(),
+         lastName: lastName.trim(),
+         email: email.trim(),
+         street: street.trim(),
+         state: state.trim(),
+         city: city.trim(),
+         zipCode: zipCode.trim(),
+         country: country.trim(),
+         phone: phone.trim()
       }
 
       const newOrderObj = {
-         user:auth.user,
-         orderItems:cartProduct,
+         user: auth.user,
+         orderItems: cartProduct,
          address
       }
+      
       try {
-         const order = await fetch(`${BASE_URL+"/v1/api/place-order"}`,{
+         const order = await fetch(`${BASE_URL}/v1/api/place-order`,{
             method:'POST',
             headers:{
-               'Content-Type':'application/json'
+               'Content-Type':'application/json',
+               'Authorization': `Bearer ${auth.token}`
             },
             body:JSON.stringify(newOrderObj)
          });
 
          const res = await order.json();
-          console.log(res)
+         console.log('Order response:', res);
+         
          if(!res.success){
-            console.log("no placed something went wrong");
+            toast.error(res.msg || "Failed to place order. Please try again.");
+            setLoading(false);
             return; 
          }
-      } catch (error) {
          
+         toast.success("Order placed successfully!");
+         
+         // Clear cart after successful order
+         cartProduct.forEach(item => {
+            dispatch(removeProducts({ id: item.id }));
+         });
+         
+         // Clear form
+         setFirstName("");
+         setLastName("");
+         setEmail("");
+         setStreet("");
+         setCity("");
+         setState("");
+         setZipcode("");
+         setCountry("");
+         setPhone("");
+         
+         // Navigate to orders page
+         setTimeout(() => {
+            navigate("/orders");
+         }, 1000);
+         
+      } catch (error) {
+         console.error("Order placement error:", error);
+         toast.error("Network error. Please check your connection and try again.");
+         setLoading(false);
       }
-
-      setFirstName("");
-      setEmail("");
-      setStreet("");
-      setCity("");
-      setState("");
-      setZipcode("");
-      setCountry("");
-      setPhone("");
-      setLastName("");
-     navigate("/orders");
    }    
 
   return (
@@ -150,7 +199,15 @@ const PlaceOrder = () => {
                <p className="text-gray-500 text-sm font-medium mx-4">CASH ON DELIVERY</p>
             </div>
          </div>
-         <div className="w-full text-end mt-8"><button type="submit" className="bg-black text-white px-16 py-3 text-sm">PLACE ORDER</button></div>
+         <div className="w-full text-end mt-8">
+            <button 
+               type="submit" 
+               disabled={loading}
+               className="bg-black text-white px-16 py-3 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+               {loading ? "PLACING ORDER..." : "PLACE ORDER"}
+            </button>
+         </div>
       </div>
    </div>
   </form>

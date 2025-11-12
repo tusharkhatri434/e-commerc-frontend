@@ -1,15 +1,17 @@
 import { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { loadStripe } from '@stripe/stripe-js';
 import { BASE_URL } from '../utils/url-config';
 import { toast } from 'react-toastify';
+import { selectCartItems, clearCart } from '../context/slice/cartSlice';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
 const Checkout = () => {
   const navigate = useNavigate();
-  const cartProduct = useSelector((state) => state.cart);
+  const dispatch = useDispatch();
+  const cartProduct = useSelector(selectCartItems);
   const { user, token } = useSelector((state) => state.auth);
   const [loading, setLoading] = useState(false);
 
@@ -108,6 +110,17 @@ const Checkout = () => {
 
       if (data.success) {
         toast.success('Order placed successfully!');
+        
+        // Clear cart in DB and Redux after successful order
+        try {
+          await dispatch(clearCart({ 
+            userId: user._id, 
+            token 
+          })).unwrap();
+        } catch (clearError) {
+          console.error('Failed to clear cart:', clearError);
+        }
+        
         navigate('/orders');
       } else {
         toast.error(data.msg || 'Failed to place order');

@@ -1,28 +1,69 @@
 import { useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addProducts,productCountIncrement,removeProducts } from "../context/slice/cartSlice";
+import { fetchCart, selectCartItems, selectCartLoading } from "../context/slice/cartSlice";
 import { IMG_URI } from "../utils/url-config";
 import CartProductCard from "../components/CartProductCard";
 import { NavLink } from "react-router-dom";
 
 const Cart = () => {
       
-   const cartProduct = useSelector((state)=>state.cart);
-   console.log("CART",cartProduct);
-   const {user} = useSelector((store)=>store.auth);
+   const dispatch = useDispatch();
+   const cartProduct = useSelector(selectCartItems);
+   const loading = useSelector(selectCartLoading);
+   const lastFetched = useSelector((state) => state.cart.lastFetched);
+   const { user, token } = useSelector((store) => store.auth);
 
-   const subTotal = useMemo(()=>{
+   // Fetch cart from database when component mounts
+   // Only fetch if not recently fetched (within last 30 seconds)
+   useEffect(() => {
+      if (user && token) {
+         const now = Date.now();
+         const thirtySeconds = 30 * 1000;
+         
+         // Fetch if never fetched OR last fetch was more than 30 seconds ago
+         if (!lastFetched || (now - lastFetched) > thirtySeconds) {
+            dispatch(fetchCart({ userId: user._id, token }));
+         }
+      }
+   }, [dispatch, user, token, lastFetched]);
+
+   const subTotal = useMemo(() => {
       let sum = 0;
-      if(cartProduct.length>0){
-      cartProduct.forEach((element) => {
-     sum = sum+element.price * element.count;
-      });
+      if (cartProduct.length > 0) {
+         cartProduct.forEach((element) => {
+            sum = sum + element.price * element.count;
+         });
+         return sum;
+      }
       return sum;
-   }
-      return sum;
-   },[cartProduct]);
+   }, [cartProduct]);
 
-   if(cartProduct.length==0) return <h1>Cart Empty</h1>;
+   // Show loading state
+   if (loading) {
+      return (
+         <div className="border-t border-gray-200 pt-14 min-h-[50vh] flex items-center justify-center">
+            <div className="text-center">
+               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
+               <p className="text-gray-600">Loading your cart...</p>
+            </div>
+         </div>
+      );
+   }
+
+   // Show empty cart message
+   if (cartProduct.length === 0) {
+      return (
+         <div className="border-t border-gray-200 pt-14 min-h-[50vh] flex flex-col items-center justify-center">
+            <h1 className="text-3xl font-semibold text-gray-700 mb-4">Your Cart is Empty</h1>
+            <p className="text-gray-500 mb-6">Add some products to get started!</p>
+            <NavLink to="/collection">
+               <button className="bg-black text-white px-8 py-3 text-sm hover:bg-gray-800">
+                  CONTINUE SHOPPING
+               </button>
+            </NavLink>
+         </div>
+      );
+   }
 
   return (
     <div className="border-t border-gray-200 pt-14">

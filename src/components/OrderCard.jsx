@@ -14,9 +14,15 @@ const OrderCard = ({ data }) => {
     status = "Order Placed", // fallback
   } = data;
 
-  // Format date
+  // Format date - converts ISO string to readable format
   const formattedDate = date
-    ? new Date(date).toDateString()
+    ? new Date(date).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      })
     : "Unknown Date";
 
   // Status color mapping
@@ -40,7 +46,7 @@ const OrderCard = ({ data }) => {
         <div>
           <p className="sm:text-base font-medium">{name}</p>
           <div className="flex flex-wrap gap-4 mt-1 text-base text-gray-700">
-            <p>₹{price}</p>
+            <p>${price}</p>
             <p>Qty: {quantity}</p>
             <p>Size: {size}</p>
           </div>

@@ -67,13 +67,21 @@ const Order = () => {
 
           <div className="flex flex-col">
             {orders.orderItems.map((item, i) => (
-              <OrderCard key={i} data={item} />
+              <OrderCard 
+                key={i} 
+                data={{
+                  ...item,
+                  date: orders.createdAt,
+                  paymentMethod: orders.payment || "COD",
+                  status: orders.orderStatus || "Order Placed"
+                }} 
+              />
             ))}
           </div>
 
           <div className="self-end mt-4 flex gap-2">
             <button className="border px-4 py-2 text-sm font-medium rounded-sm">
-              Total Pay: ₹{orders.totalAmount}
+              Total Pay: ${orders.totalAmount}
             </button>
             <button className="border px-4 py-2 text-sm font-medium rounded-sm bg-blue-500 text-white hover:bg-blue-600">
               Track Order

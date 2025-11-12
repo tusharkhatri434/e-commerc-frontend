@@ -3,12 +3,12 @@ import { useSelector, useDispatch } from "react-redux"
 import { useNavigate } from "react-router-dom";
 import { BASE_URL } from "../utils/url-config";
 import { toast } from "react-toastify";
-import { removeProducts } from "../context/slice/cartSlice";
+import { clearCart, selectCartItems } from "../context/slice/cartSlice";
 
 
 const PlaceOrder = () => {
    
-   const cartProduct = useSelector((state)=>state.cart);
+   const cartProduct = useSelector(selectCartItems);
    const auth = useSelector((state)=>state.auth);
    const dispatch = useDispatch();
    const navigate = useNavigate();
@@ -104,10 +104,16 @@ const PlaceOrder = () => {
          
          toast.success("Order placed successfully!");
          
-         // Clear cart after successful order
-         cartProduct.forEach(item => {
-            dispatch(removeProducts({ id: item.id }));
-         });
+         // Clear cart in DB and Redux after successful order
+         try {
+            await dispatch(clearCart({ 
+               userId: auth.user._id, 
+               token: auth.token 
+            })).unwrap();
+         } catch (clearError) {
+            console.error('Failed to clear cart:', clearError);
+            // Continue anyway as order was placed successfully
+         }
          
          // Clear form
          setFirstName("");

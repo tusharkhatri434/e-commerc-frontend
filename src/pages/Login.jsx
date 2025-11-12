@@ -3,11 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { BASE_URL } from "../utils/url-config";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser, registerUser, } from '../context/slice/authSlice';
+import { fetchCart } from '../context/slice/cartSlice';
 
 const Login = () => {
 
   const navigate = useNavigate();
-  const {user,loading,error} = useSelector((store)=>store.auth);
+  const {user,loading,error,token} = useSelector((store)=>store.auth);
   const dispatch = useDispatch();
 
   const [isLoginForm,setLoginForm] = useState(true);
@@ -64,12 +65,16 @@ const Login = () => {
     dispatch(registerUser({name,email,password}));
   }
   console.log(error);
+  
+  // Fetch cart after successful login/registration
   useEffect(()=>{
-    if(user){
-      console.log("login effect running");
+    if(user && token){
+      console.log("login effect running - fetching cart");
+      // Fetch user's cart from database
+      dispatch(fetchCart({ userId: user._id, token }));
       navigate('/');
     }
-  },[user,navigate]);
+  },[user, token, navigate, dispatch]);
 
   return (
     <form onSubmit={formSubmitHandler} className="flex flex-col items-center w-[90%] sm:max-w-96 m-auto mt-14 gap-4 text-gray-800">

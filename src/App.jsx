@@ -1,5 +1,7 @@
 import "./index.css";
 import { Route, Routes } from "react-router-dom";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import Home from './pages/Home';
 import About from './pages/About';
 import PlaceOrder from './pages/PlaceOrder';
@@ -9,6 +11,7 @@ import Order from "./pages/Order";
 import Collection from "./pages/Collection";
 import Cart from "./pages/Cart";
 import Product from "./pages/Product";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import Checkout from "./pages/Checkout";
 import PaymentSuccess from "./pages/PaymentSuccess";
@@ -23,8 +26,21 @@ import ScrollToTop from "./pages/ScrollToTop";
 import PrivateRoute from "./components/PrivaterRoute";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { fetchCart } from "./context/slice/cartSlice";
 
 function App() {
+  const dispatch = useDispatch();
+  const { user, token } = useSelector((state) => state.auth);
+
+  // Fetch cart on app initialization if user is logged in
+  // This handles page refresh scenario
+  useEffect(() => {
+    if (user && token) {
+      console.log("App mounted - fetching cart for logged-in user");
+      dispatch(fetchCart({ userId: user._id, token }));
+    }
+  }, [dispatch, user, token]);
+
   return (
     <>
       <ScrollToTop />
@@ -59,6 +75,7 @@ function App() {
               <Route path="/collection" element={<Collection />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/login" element={<Login />} />
+              <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
               <Route path="/orders" element={<PrivateRoute><Order /></PrivateRoute>} />
               <Route path="/place-order" element={<PrivateRoute><PlaceOrder /></PrivateRoute>} />
               <Route path="/checkout" element={<PrivateRoute><Checkout /></PrivateRoute>} />

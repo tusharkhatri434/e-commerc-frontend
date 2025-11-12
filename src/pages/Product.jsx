@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { BASE_URL, IMG_URI } from '../utils/url-config';
-import { useDispatch } from 'react-redux';
-import { addProducts } from "../context/slice/cartSlice";
+import { useDispatch, useSelector } from 'react-redux';
+import { addToCart, addProductOptimistic } from "../context/slice/cartSlice";
 import { toast } from 'react-toastify';
 import ProductShimmer from '../components/ProductShimmer';
 
@@ -11,7 +11,10 @@ const Product = () => {
   const [product, setProduct] = useState(null);
   const [related, setRelated] = useState([]);
   const [size, setSize] = useState(null);
+  const [adding, setAdding] = useState(false);
+  
   const dispatch = useDispatch();
+  const { user, token } = useSelector((state) => state.auth);
 
   const notify = () =>
     toast.error("Select Product Size", {
@@ -39,12 +42,45 @@ const Product = () => {
     fetchProduct(productId);
   }, [productId]);
 
-  const addToCartHandler = () => {
+  const addToCartHandler = async () => {
     if (!size) {
       notify();
       return;
     }
-    dispatch(addProducts({ ...product, id: Date.now() * 2, count: 1, size }));
+
+    // Check if user is logged in
+    if (!user || !token) {
+      toast.error("Please login to add items to cart");
+      return;
+    }
+
+    setAdding(true);
+
+    const cartItem = { 
+      ...product, 
+      size,
+      count: 1,
+    };
+
+    try {
+      // Optimistic update for instant UI feedback
+      dispatch(addProductOptimistic(cartItem));
+      
+      // Sync with backend
+      await dispatch(addToCart({ 
+        userId: user._id, 
+        token, 
+        product: cartItem 
+      })).unwrap();
+      
+      // Reset size selection after successful add
+      setSize(null);
+    } catch (error) {
+      console.error('Add to cart failed:', error);
+      // Error toast is already shown in the thunk
+    } finally {
+      setAdding(false);
+    }
   };
 
   if (!product) {
@@ -105,9 +141,10 @@ const Product = () => {
 
           <button
             onClick={addToCartHandler}
-            className="bg-black cursor-pointer text-white px-8 py-3 text-sm active:bg-gray-700"
+            disabled={adding}
+            className="bg-black cursor-pointer text-white px-8 py-3 text-sm active:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            ADD TO CART
+            {adding ? 'ADDING...' : 'ADD TO CART'}
           </button>
 
           <hr className="mt-8 sm:w-4/5" />

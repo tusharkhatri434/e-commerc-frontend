@@ -57,6 +57,15 @@ const authSlice = createSlice({
       state.error = null;
       localStorage.removeItem('user');
       localStorage.removeItem('token');
+      // Note: Cart will be cleared by the component calling logout
+    },
+    updateUserProfile: (state, action) => {
+      // Update user profile in state and localStorage
+      state.user = {
+        ...state.user,
+        ...action.payload
+      };
+      localStorage.setItem('user', JSON.stringify(state.user));
     },
   },
   extraReducers: (builder) => {
@@ -94,5 +103,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout } = authSlice.actions;
+export const { logout, updateUserProfile } = authSlice.actions;
 export default authSlice.reducer;
